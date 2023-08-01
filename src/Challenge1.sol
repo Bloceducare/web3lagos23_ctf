@@ -20,13 +20,14 @@ contract W_3_B_C_1 is S_M {
     event DoorUnlocked(address opener, string key);
 
     function open_entrance_door(
-        uint24 _magicno,
+        uint16 _magicno,
         string calldata _just_a_name,
         string calldata _secret_missive,
         string calldata _x_
     ) public {
         if (usedkey[sha256(abi.encodePacked(_x_))])
             revert("Idan no dey open different doors with the same key");
+
         if (
             validkey[
                 sha256(
@@ -48,4 +49,6 @@ contract W_3_B_C_1 is S_M {
             emit DoorUnlocked(msg.sender, _x_);
         }
     }
+
+    function solve_challenge_A() public {}
 }
