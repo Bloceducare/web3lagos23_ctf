@@ -4,20 +4,23 @@ import {S_M} from "./sec_ret__miss_ive.sol";
 
 contract W_3_B_C_1 is S_M {
     //Levels
-    bytes32 constant PASSED_DOOR = bytes32(keccak256("Passed Door"));
-    bytes32 constant PASSED_LEVEL_A = bytes32(keccak256("Passed Level A"));
-    bytes32 constant PASSED_LEVEL_B = bytes32(keccak256("Passed Level B"));
-    bytes32 constant PASSED_LEVEL_C = bytes32(keccak256("Passed Level C"));
-    bytes32 constant PASSED_LEVEL_D = bytes32(keccak256("Passed Level D"));
+    bytes constant PASSED_DOOR = (abi.encode(" Door"));
+    bytes constant PASSED_LEVEL_A = (abi.encode("Level A"));
+    bytes constant PASSED_LEVEL_B = (abi.encode(" Level B"));
+    bytes constant PASSED_LEVEL_C = (abi.encode(" Level C"));
+    bytes constant PASSED_LEVEL_D = (abi.encode(" Level D"));
 
-    mapping(address => mapping(bytes32 => bool)) public levels;
-    mapping(bytes32 => bool) public unlocked;
+    mapping(address => mapping(bytes => bool)) public levels;
+    mapping(bytes => bool) public unlocked;
+
+    error LevelNotPassed(string);
 
     //door
     mapping(bytes32 => bool) private validkey;
     mapping(bytes32 => bool) public usedkey;
 
     event DoorUnlocked(address opener, string key);
+    event LevelUnlocked(address opener, bytes level);
 
     function open_entrance_door(
         uint16 _magicno,
@@ -50,5 +53,24 @@ contract W_3_B_C_1 is S_M {
         }
     }
 
-    function solve_challenge_A() public {}
+    function solve_challenge_A() public payable {
+        __hasSolved__(PASSED_DOOR);
+        require(
+            msg.value == (uint32(uint160(msg.sender)) & 0xffff) / 100,
+            "Is it for beans?"
+        );
+        if (!unlocked[PASSED_LEVEL_A]) {
+            unlocked[PASSED_LEVEL_A] = true;
+            //do transfer
+        }
+        levels[msg.sender][PASSED_LEVEL_A] = true;
+        emit LevelUnlocked(msg.sender, PASSED_LEVEL_A);
+    }
+
+    function solve_challenge_B() public {}
+
+    //checks
+    function __hasSolved__(bytes memory _level) public view {
+        if (!levels[msg.sender][_level]) revert LevelNotPassed(string(_level));
+    }
 }
