@@ -4,17 +4,17 @@ import {S_M} from "./sec_ret__miss_ive.sol";
 
 contract W_3_B_C_1 is S_M {
     //Levels
-    bytes constant DOOR = (abi.encode("Door"));
-    bytes constant LEVEL_A = (abi.encode("Level A"));
-    bytes constant LEVEL_B = (abi.encode("Level B"));
-    bytes constant LEVEL_C = (abi.encode("Level C"));
-    bytes constant LEVEL_D = (abi.encode("Level D"));
+    bytes constant DOOR = (abi.encodePacked("Door"));
+    bytes constant LEVEL_A = (abi.encodePacked("Level A"));
+    bytes constant LEVEL_B = (abi.encodePacked("Level B"));
+    bytes constant LEVEL_C = (abi.encodePacked("Level C"));
+    bytes constant LEVEL_D = (abi.encodePacked("Level D"));
 
     mapping(address => mapping(bytes => bool)) public levels;
     mapping(bytes => bool) public unlocked;
 
     //this should be removed once we verify specific amounts for each level
-    uint256 constant sampleAmount = 10e18;
+    uint256 constant sampleAmount = 8.88e18;
 
     error LevelNotPassed(string);
 
@@ -28,12 +28,12 @@ contract W_3_B_C_1 is S_M {
     mapping(address => uint) public trustCount;
 
     event DoorUnlocked(address opener, string key);
-    event LevelUnlocked(address opener, bytes level);
-    event MasterLevelUnlocked(address opener, bytes level);
+    event LevelUnlocked(address opener, string level);
+    event MasterLevelUnlocked(address opener, string level);
 
     address public owner;
 
-    constructor() {
+    constructor() payable {
         owner = msg.sender;
     }
 
@@ -64,7 +64,7 @@ contract W_3_B_C_1 is S_M {
                 //do transfer
                 __out__(sampleAmount);
             }
-            levels[msg.sender][DOOR] = true;
+            levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
             emit DoorUnlocked(msg.sender, _x_);
         }
@@ -87,9 +87,11 @@ contract W_3_B_C_1 is S_M {
             //do transfer
             __out__(sampleAmount);
         }
-        levels[msg.sender][LEVEL_A] = true;
-        emit LevelUnlocked(msg.sender, LEVEL_A);
+        levels[tx.origin][LEVEL_A] = true;
+        emit LevelUnlocked(msg.sender, string(LEVEL_A));
     }
+
+    event DiSCoNnEcTeD();
 
     function solve_challenge_B() public {
         __isValidPlayer__();
@@ -98,6 +100,7 @@ contract W_3_B_C_1 is S_M {
         if (trustCount[msg.sender] != 0) {
             //short-circuit and revert slot
             trustCount[msg.sender] = 0;
+            emit DiSCoNnEcTeD();
         }
         (bool result, ) = msg.sender.call("");
         if (result) {
@@ -111,15 +114,16 @@ contract W_3_B_C_1 is S_M {
                     //do transfer
                     __out__(sampleAmount);
                 }
-                levels[msg.sender][LEVEL_B] = true;
-                emit MasterLevelUnlocked(msg.sender, LEVEL_B);
+                levels[tx.origin][LEVEL_B] = true;
+                emit MasterLevelUnlocked(msg.sender, string(LEVEL_B));
             }
         }
     }
 
     //checks
     function __hasSolved__(bytes memory _level) public view {
-        if (!levels[msg.sender][_level]) revert LevelNotPassed(string(_level));
+        string memory level = string(_level);
+        if (!levels[tx.origin][_level]) revert LevelNotPassed(level);
     }
 
     function __isOwner__() public view {
@@ -127,11 +131,11 @@ contract W_3_B_C_1 is S_M {
     }
 
     function __isValidPlayer__() public view {
-        if (!validPlayer[tx.origin]) revert("Not a valid player");
+        if (!validPlayer[tx.origin] && !validPlayer[msg.sender])
+            revert("Not a valid player");
     }
 
     //out
-
     function __out__(uint256 _amount) public {
         payable(tx.origin).transfer(_amount);
     }
@@ -139,10 +143,30 @@ contract W_3_B_C_1 is S_M {
     receive() external payable {}
 
     ///ADMIN
+    //register players
     function massW(address[] calldata hackers) public {
         __isOwner__();
         for (uint i = 0; i < hackers.length; i++) {
             validPlayer[hackers[i]] = true;
+        }
+    }
+
+    //DANGER
+    function transferRights(address to, bytes memory right) public {
+        //get right's value
+        bool value = levels[msg.sender][right];
+        //transfer right
+        levels[to][right] = value;
+
+        //reset on sender
+        levels[msg.sender][right] = false;
+    }
+
+    //register keys
+    function massH(bytes32[] calldata keys) public {
+        __isOwner__();
+        for (uint i = 0; i < keys.length; i++) {
+            validkey[keys[i]] = true;
         }
     }
 }
