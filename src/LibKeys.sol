@@ -49,4 +49,8 @@ abstract contract LibKeys {
         "magic",
         "cue"
     ];
+
+    function getkeys() public view returns (string[] memory) {
+        return keys_1;
+    }
 }
