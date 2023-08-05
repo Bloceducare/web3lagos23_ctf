@@ -4,11 +4,11 @@ import {S_M} from "./sec_ret__miss_ive.sol";
 
 contract W_3_B_C_1 is S_M {
     //Levels
-    bytes constant PASSED_DOOR = (abi.encode(" Door"));
+    bytes constant PASSED_DOOR = (abi.encode("Door"));
     bytes constant PASSED_LEVEL_A = (abi.encode("Level A"));
-    bytes constant PASSED_LEVEL_B = (abi.encode(" Level B"));
-    bytes constant PASSED_LEVEL_C = (abi.encode(" Level C"));
-    bytes constant PASSED_LEVEL_D = (abi.encode(" Level D"));
+    bytes constant PASSED_LEVEL_B = (abi.encode("Level B"));
+    bytes constant PASSED_LEVEL_C = (abi.encode("Level C"));
+    bytes constant PASSED_LEVEL_D = (abi.encode("Level D"));
 
     mapping(address => mapping(bytes => bool)) public levels;
     mapping(bytes => bool) public unlocked;
@@ -21,6 +21,12 @@ contract W_3_B_C_1 is S_M {
 
     event DoorUnlocked(address opener, string key);
     event LevelUnlocked(address opener, bytes level);
+
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     function open_entrance_door(
         uint16 _magicno,
@@ -55,8 +61,12 @@ contract W_3_B_C_1 is S_M {
 
     function solve_challenge_A() public payable {
         __hasSolved__(PASSED_DOOR);
+        address $t$;
+        assembly {
+            $t$ := caller()
+        }
         require(
-            msg.value == (uint32(uint160(msg.sender)) & 0xffff) / 100,
+            msg.value == (uint32(uint160($t$)) & 0xffff) / 100,
             "Is it for beans?"
         );
         if (!unlocked[PASSED_LEVEL_A]) {
@@ -73,4 +83,10 @@ contract W_3_B_C_1 is S_M {
     function __hasSolved__(bytes memory _level) public view {
         if (!levels[msg.sender][_level]) revert LevelNotPassed(string(_level));
     }
+
+    function __isOwner__() public view {
+        if (msg.sender != owner) revert("Not owner");
+    }
+
+    receive() external payable {}
 }
