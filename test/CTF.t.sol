@@ -50,11 +50,16 @@ contract CTFTest is Test, LibKeys {
         ctf.open_entrance_door(2929, "ayodeji", "supersimple", "smell");
         assertEq(ctf.levels(tx.origin, DOOR), true);
 
+        vm.expectRevert("Idan no dey open different doors with the same key");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "smell");
+
         //LEVEL A//
 
         // calculate and send the amount of ether required to solve level A
         uint256 amount = (uint32(uint160(address(this))) & 0xffff) / 100;
         vm.deal(address(this), 1 ether);
+        vm.expectRevert("Is it for beans?");
+        ctf.solve_challenge_A{value: amount + 1}();
 
         ctf.solve_challenge_A{value: amount}();
         assertEq(ctf.levels(tx.origin, LEVEL_A), true);
