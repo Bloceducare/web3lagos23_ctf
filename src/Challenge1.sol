@@ -120,6 +120,29 @@ contract W_3_B_C_1 is S_M {
         }
     }
 
+    address currentPrincipal;
+
+    function solve_challenge_C(address _newPrincipal) public {
+        __isValidPlayer__();
+        if (tx.origin != msg.sender) {
+            assert(_newPrincipal.code.length == 0);
+            currentPrincipal = _newPrincipal;
+        }
+    }
+
+    function get_C_Profit() public {
+        __isValidPlayer__();
+        __hasSolved__(DOOR);
+        if (tx.origin != currentPrincipal) revert("Not Principal");
+        if (!unlocked[LEVEL_C]) {
+            unlocked[LEVEL_C] = true;
+            __out__(sampleAmount);
+        }
+
+        levels[tx.origin][LEVEL_C] = true;
+        emit LevelUnlocked(msg.sender, string(LEVEL_C));
+    }
+
     //checks
     function __hasSolved__(bytes memory _level) public view {
         string memory level = string(_level);
