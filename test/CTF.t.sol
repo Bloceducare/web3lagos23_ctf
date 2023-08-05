@@ -7,6 +7,7 @@ import {LibKeys} from "../src/LibKeys.sol";
 import {reenter_x} from "./POC/reenter.sol";
 
 import {proxy} from "./POC/proxy.sol";
+import {proxyD} from "./POC/proxyD.sol";
 
 contract CTFTest is Test, LibKeys {
     //levels
@@ -90,6 +91,16 @@ contract CTFTest is Test, LibKeys {
         //get level C profit
         ctf.get_C_Profit();
         assertEq(ctf.levels(tx.origin, LEVEL_C), true);
+
+        //Deploy Level D
+        proxyD pD = new proxyD(address(ctf));
+
+        //get level D profit
+        ctf.solve_challenge_D2();
+
+        //should fail
+        vm.expectRevert("PROXIES MUST NOT CONTAIN CODE");
+        pD.testCodeinAddress(address(ctf));
     }
 
     function toDynamicAddr(
