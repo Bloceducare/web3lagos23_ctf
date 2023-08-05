@@ -6,6 +6,8 @@ import {W_3_B_C_1} from "../src/Challenge1.sol";
 import {LibKeys} from "../src/LibKeys.sol";
 import {reenter_x} from "./POC/reenter.sol";
 
+import {proxy} from "./POC/proxy.sol";
+
 contract CTFTest is Test, LibKeys {
     //levels
     bytes constant DOOR = (abi.encodePacked("Door"));
@@ -68,10 +70,26 @@ contract CTFTest is Test, LibKeys {
         //deploy reenter_x.sol
         reenter_x x = new reenter_x(address(ctf));
         //transfer rights to helper contract
-        ctf.transferRights(address(x), LEVEL_A);
+        // ctf.transferRights(address(x), LEVEL_A);
         x.__initiate();
         //assert level is solved
         assertEq(ctf.levels(tx.origin, LEVEL_B), true);
+
+        //LEVEL C//
+        //deploy proxy.sol
+        proxy p = new proxy();
+
+        //transfer rights to helper contract
+        //should fail
+        vm.expectRevert("Idan no suppose get code");
+        p.interactFail(address(ctf));
+
+        //should pass
+        p.interactSuccess(address(ctf));
+
+        //get level C profit
+        ctf.get_C_Profit();
+        assertEq(ctf.levels(tx.origin, LEVEL_C), true);
     }
 
     function toDynamicAddr(

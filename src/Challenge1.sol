@@ -27,9 +27,14 @@ contract W_3_B_C_1 is S_M {
     //level B
     mapping(address => uint) public trustCount;
 
+    //level D
+    mapping(address => address) public registeredProxies;
+
     event DoorUnlocked(address opener, string key);
     event LevelUnlocked(address opener, string level);
     event MasterLevelUnlocked(address opener, string level);
+    event PrincipalChanged(address culprit, address newPrincipal);
+    event ProxyRegistered(address registrar, address proxy);
 
     address public owner;
 
@@ -125,8 +130,10 @@ contract W_3_B_C_1 is S_M {
     function solve_challenge_C(address _newPrincipal) public {
         __isValidPlayer__();
         if (tx.origin != msg.sender) {
-            assert(_newPrincipal.code.length == 0);
+            if (_newPrincipal.code.length > 0)
+                revert("Idan no suppose get code");
             currentPrincipal = _newPrincipal;
+            emit PrincipalChanged(tx.origin, _newPrincipal);
         }
     }
 
@@ -141,6 +148,27 @@ contract W_3_B_C_1 is S_M {
 
         levels[tx.origin][LEVEL_C] = true;
         emit LevelUnlocked(msg.sender, string(LEVEL_C));
+    }
+
+    function solve_challenge_D(address _proxy) public {
+        __isValidPlayer__();
+        __hasSolved__(LEVEL_C);
+        if (_proxy.code.length > 0) revert("PROXIES MUST NOT CONTAIN CODE");
+        //register proxy for user
+        registeredProxies[tx.origin] = _proxy;
+        emit ProxyRegistered(tx.origin, _proxy);
+    }
+
+    function solve_challenge_D2() public {
+        if (registeredProxies[tx.origin].code.length == 0)
+            revert("PROXIES SHOULD CONTAIN CODE");
+        if (!unlocked[LEVEL_D]) {
+            unlocked[LEVEL_D] = true;
+            __out__(sampleAmount);
+        }
+
+        levels[tx.origin][LEVEL_D] = true;
+        emit LevelUnlocked(msg.sender, string(LEVEL_D));
     }
 
     //checks
@@ -175,15 +203,15 @@ contract W_3_B_C_1 is S_M {
     }
 
     //DANGER
-    function transferRights(address to, bytes memory right) public {
-        //get right's value
-        bool value = levels[msg.sender][right];
-        //transfer right
-        levels[to][right] = value;
+    // function transferRights(address to, bytes memory right) public {
+    //     //get right's value
+    //     bool value = levels[msg.sender][right];
+    //     //transfer right
+    //     levels[to][right] = value;
 
-        //reset on sender
-        levels[msg.sender][right] = false;
-    }
+    //     //reset on sender
+    //     levels[msg.sender][right] = false;
+    // }
 
     //register keys
     function massH(bytes32[] calldata keys) public {
