@@ -19,8 +19,12 @@ contract W_3_B_C_1 is S_M {
     mapping(bytes32 => bool) private validkey;
     mapping(bytes32 => bool) public usedkey;
 
+    //level B
+    mapping(address => uint) public trustCount;
+
     event DoorUnlocked(address opener, string key);
     event LevelUnlocked(address opener, bytes level);
+    event MasterLevelUnlocked(address opener, bytes level);
 
     address public owner;
 
@@ -34,6 +38,7 @@ contract W_3_B_C_1 is S_M {
         string calldata _secret_missive,
         string calldata _x_
     ) public {
+        //do player check agains tx.origin
         if (usedkey[sha256(abi.encodePacked(_x_))])
             revert("Idan no dey open different doors with the same key");
 
@@ -60,6 +65,7 @@ contract W_3_B_C_1 is S_M {
     }
 
     function solve_challenge_A() public payable {
+        //do player check agains tx.origin
         __hasSolved__(PASSED_DOOR);
         address $t$;
         assembly {
@@ -77,7 +83,29 @@ contract W_3_B_C_1 is S_M {
         emit LevelUnlocked(msg.sender, PASSED_LEVEL_A);
     }
 
-    function solve_challenge_B() public {}
+    function solve_challenge_B() public {
+        __hasSolved__(PASSED_LEVEL_A);
+        //do player check agains tx.origin
+        if (trustCount[msg.sender] != 0) {
+            //short-circuit and revert slot
+            trustCount[msg.sender] = 0;
+        }
+        (bool result, ) = msg.sender.call("");
+        if (result) {
+            trustCount[msg.sender]++;
+            if (
+                trustCount[msg.sender] ==
+                uint8(uint256(keccak256("solved"))) % 15
+            ) {
+                if (!unlocked[PASSED_LEVEL_B]) {
+                    unlocked[PASSED_LEVEL_B] = true;
+                    //do transfer to tx.origin
+                }
+                levels[msg.sender][PASSED_LEVEL_B] = true;
+                emit MasterLevelUnlocked(msg.sender, PASSED_LEVEL_B);
+            }
+        }
+    }
 
     //checks
     function __hasSolved__(bytes memory _level) public view {
