@@ -20,6 +20,8 @@ contract W_3_B_C_1 is S_M {
 
     //master and auth
     mapping(address => bool) public validPlayer;
+    //nick and address
+    mapping(address => string) nicks;
     //door
     mapping(bytes32 => bool) private validkey;
     mapping(bytes32 => bool) public usedkey;
@@ -30,11 +32,11 @@ contract W_3_B_C_1 is S_M {
     //level D
     mapping(address => address) public registeredProxies;
 
-    event DoorUnlocked(address opener, string key);
-    event LevelUnlocked(address opener, string level);
-    event MasterLevelUnlocked(address opener, string level);
-    event PrincipalChanged(address culprit, address newPrincipal);
-    event ProxyRegistered(address registrar, address proxy);
+    event DoorUnlocked(string opener, string key);
+    event LevelUnlocked(string opener, string level);
+    event MasterLevelUnlocked(string opener, string level);
+    event PrincipalChanged(string culprit, address newPrincipal);
+    event ProxyRegistered(string registrar, address proxy);
 
     address public owner;
 
@@ -50,6 +52,7 @@ contract W_3_B_C_1 is S_M {
     ) public {
         __isValidPlayer__();
         if (usedkey[sha256(abi.encodePacked(_x_))])
+            //TO:DO use events to noify failure
             revert("Idan no dey open different doors with the same key");
 
         if (
@@ -71,7 +74,8 @@ contract W_3_B_C_1 is S_M {
             }
             levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
-            emit DoorUnlocked(msg.sender, _x_);
+            //we use msg.sender here explicitly
+            emit DoorUnlocked(toNick(msg.sender), _x_);
         }
     }
 
@@ -93,7 +97,7 @@ contract W_3_B_C_1 is S_M {
             __out__(sampleAmount);
         }
         levels[tx.origin][LEVEL_A] = true;
-        emit LevelUnlocked(msg.sender, string(LEVEL_A));
+        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_A));
     }
 
     event DiSCoNnEcTeD();
@@ -120,7 +124,7 @@ contract W_3_B_C_1 is S_M {
                     __out__(sampleAmount);
                 }
                 levels[tx.origin][LEVEL_B] = true;
-                emit MasterLevelUnlocked(msg.sender, string(LEVEL_B));
+                emit MasterLevelUnlocked(toNick(msg.sender), string(LEVEL_B));
             }
         }
     }
@@ -133,7 +137,7 @@ contract W_3_B_C_1 is S_M {
             if (_newPrincipal.code.length > 0)
                 revert("Idan no suppose get code");
             currentPrincipal = _newPrincipal;
-            emit PrincipalChanged(tx.origin, _newPrincipal);
+            emit PrincipalChanged(toNick(tx.origin), _newPrincipal);
         }
     }
 
@@ -147,7 +151,7 @@ contract W_3_B_C_1 is S_M {
         }
 
         levels[tx.origin][LEVEL_C] = true;
-        emit LevelUnlocked(msg.sender, string(LEVEL_C));
+        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_C));
     }
 
     function solve_challenge_D(address _proxy) public {
@@ -156,7 +160,7 @@ contract W_3_B_C_1 is S_M {
         if (_proxy.code.length > 0) revert("PROXIES MUST NOT CONTAIN CODE");
         //register proxy for user
         registeredProxies[tx.origin] = _proxy;
-        emit ProxyRegistered(tx.origin, _proxy);
+        emit ProxyRegistered(toNick(tx.origin), _proxy);
     }
 
     function solve_challenge_D2() public {
@@ -168,7 +172,7 @@ contract W_3_B_C_1 is S_M {
         }
 
         levels[tx.origin][LEVEL_D] = true;
-        emit LevelUnlocked(msg.sender, string(LEVEL_D));
+        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_D));
     }
 
     //checks
@@ -187,7 +191,7 @@ contract W_3_B_C_1 is S_M {
     }
 
     //out
-    function __out__(uint256 _amount) public {
+    function __out__(uint256 _amount) internal {
         payable(tx.origin).transfer(_amount);
     }
 
@@ -195,11 +199,19 @@ contract W_3_B_C_1 is S_M {
 
     ///ADMIN
     //register players
-    function massW(address[] calldata hackers) public {
+    function massW(
+        address[] calldata hackers,
+        string[] calldata _hackers
+    ) public {
         __isOwner__();
         for (uint i = 0; i < hackers.length; i++) {
             validPlayer[hackers[i]] = true;
+            nicks[hackers[i]] = _hackers[i];
         }
+    }
+
+    function toNick(address _addr) public view returns (string memory) {
+        return nicks[_addr];
     }
 
     //DANGER
@@ -208,7 +220,6 @@ contract W_3_B_C_1 is S_M {
     //     bool value = levels[msg.sender][right];
     //     //transfer right
     //     levels[to][right] = value;
-
     //     //reset on sender
     //     levels[msg.sender][right] = false;
     // }
