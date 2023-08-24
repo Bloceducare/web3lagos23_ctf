@@ -32,8 +32,8 @@ contract CTFTest is Test, LibKeys {
         ctf.open_entrance_door(2929, "ayodeji", "supersimple", "hello");
 
         //approve the player
-        ctf.massW(toDynamicAddr(address(this)));
-        ctf.massW(toDynamicAddr(tx.origin));
+        ctf.massW(toDynamicAddr(address(this)), toDynamicString("Hunter-X"));
+        ctf.massW(toDynamicAddr(tx.origin), toDynamicString("Hunter-Y"));
 
         //register all possible keys
         ctf.massH(getAllPossibleKeys());
@@ -108,6 +108,13 @@ contract CTFTest is Test, LibKeys {
     ) public pure returns (address[] memory t) {
         t = new address[](1);
         t[0] = addr;
+    }
+
+    function toDynamicString(
+        string memory _s
+    ) public pure returns (string[] memory s) {
+        s = new string[](1);
+        s[0] = _s;
     }
 
     ///Helpers
