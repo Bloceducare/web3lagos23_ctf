@@ -54,7 +54,6 @@ contract W_3_B_C_1 is S_M {
     ) public {
         __isValidPlayer__();
         if (usedkey[sha256(abi.encodePacked(_x_))])
-            //TO:DO use events to noify failure
             revert("Idan no dey open different doors with the same key");
 
         if (
