@@ -38,6 +38,8 @@ contract W_3_B_C_1 is S_M {
     event PrincipalChanged(string culprit, address newPrincipal);
     event ProxyRegistered(string registrar, address proxy);
 
+    event FirstSolver(string solver, string level);
+
     address public owner;
 
     constructor() payable {
@@ -70,17 +72,17 @@ contract W_3_B_C_1 is S_M {
             if (!unlocked[DOOR]) {
                 unlocked[DOOR] = true;
                 //do transfer
-                __out__(sampleAmount);
+                //   __out__(sampleAmount);
+                emit FirstSolver(toNick(msg.sender), string(DOOR));
             }
             levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
             //we use msg.sender here explicitly
-            emit DoorUnlocked(toNick(msg.sender), _x_);
+            emit DoorUnlocked(toNick(tx.origin), _x_);
         }
     }
 
     function solve_challenge_A() public payable {
-        //do player check agains tx.origin
         __isValidPlayer__();
         __hasSolved__(DOOR);
         address $t$;
@@ -95,9 +97,10 @@ contract W_3_B_C_1 is S_M {
             unlocked[LEVEL_A] = true;
             //do transfer
             __out__(sampleAmount);
+            emit FirstSolver(toNick(tx.origin), string(LEVEL_A));
         }
         levels[tx.origin][LEVEL_A] = true;
-        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_A));
+        emit LevelUnlocked(toNick(tx.origin), string(LEVEL_A));
     }
 
     event DiSCoNnEcTeD();
@@ -122,9 +125,10 @@ contract W_3_B_C_1 is S_M {
                     unlocked[LEVEL_B] = true;
                     //do transfer
                     __out__(sampleAmount);
+                    emit FirstSolver(toNick(tx.origin), string(LEVEL_B));
                 }
                 levels[tx.origin][LEVEL_B] = true;
-                emit MasterLevelUnlocked(toNick(msg.sender), string(LEVEL_B));
+                emit MasterLevelUnlocked(toNick(tx.origin), string(LEVEL_B));
             }
         }
     }
@@ -148,6 +152,7 @@ contract W_3_B_C_1 is S_M {
         if (!unlocked[LEVEL_C]) {
             unlocked[LEVEL_C] = true;
             __out__(sampleAmount);
+            emit FirstSolver(toNick(msg.sender), string(LEVEL_C));
         }
 
         levels[tx.origin][LEVEL_C] = true;
@@ -169,6 +174,7 @@ contract W_3_B_C_1 is S_M {
         if (!unlocked[LEVEL_D]) {
             unlocked[LEVEL_D] = true;
             __out__(sampleAmount);
+            emit FirstSolver(toNick(msg.sender), string(LEVEL_D));
         }
 
         levels[tx.origin][LEVEL_D] = true;
@@ -191,7 +197,7 @@ contract W_3_B_C_1 is S_M {
     }
 
     //out
-    function __out__(uint256 _amount) internal {
+    function __out__(uint256 _amount) private {
         payable(tx.origin).transfer(_amount);
     }
 
