@@ -35,6 +35,12 @@
         "internalType": "string",
         "name": "key",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timeFired",
+        "type": "uint256"
       }
     ],
     "name": "DoorUnlocked",
@@ -73,6 +79,12 @@
         "internalType": "string",
         "name": "level",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timeFired",
+        "type": "uint256"
       }
     ],
     "name": "LevelUnlocked",
@@ -92,6 +104,12 @@
         "internalType": "string",
         "name": "level",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timeFired",
+        "type": "uint256"
       }
     ],
     "name": "MasterLevelUnlocked",
@@ -111,6 +129,12 @@
         "internalType": "address",
         "name": "newPrincipal",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timeFired",
+        "type": "uint256"
       }
     ],
     "name": "PrincipalChanged",
@@ -130,6 +154,12 @@
         "internalType": "address",
         "name": "proxy",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timeFired",
+        "type": "uint256"
       }
     ],
     "name": "ProxyRegistered",
