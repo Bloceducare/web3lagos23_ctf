@@ -1,67 +1,24 @@
 [
   {
-    "inputs": [
-      { "internalType": "address", "name": "_agents", "type": "address" },
-      { "internalType": "uint256", "name": "_nonce", "type": "uint256" },
-      { "internalType": "uint96", "name": "_feePercent", "type": "uint96" },
-      {
-        "internalType": "uint96",
-        "name": "_agentFeePercent",
-        "type": "uint96"
-      },
-      { "internalType": "uint64", "name": "_cancelLockDays", "type": "uint64" }
-    ],
-    "stateMutability": "nonpayable",
+    "inputs": [],
+    "stateMutability": "payable",
     "type": "constructor"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "executor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "poolId",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
-    "name": "ApproveCancel",
-    "type": "event"
+    "name": "LevelNotPassed",
+    "type": "error"
   },
   {
     "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "executor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "poolId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "Cancel",
+    "inputs": [],
+    "name": "DiSCoNnEcTeD",
     "type": "event"
   },
   {
@@ -69,90 +26,408 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
+        "internalType": "string",
+        "name": "opener",
+        "type": "string"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "agent",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "gigID",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "key",
+        "type": "string"
       }
     ],
-    "name": "Deposit",
+    "name": "DoorUnlocked",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        "indexed": false,
+        "internalType": "string",
+        "name": "solver",
+        "type": "string"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
+        "indexed": false,
+        "internalType": "string",
+        "name": "level",
+        "type": "string"
       }
     ],
-    "name": "OwnershipTransferred",
+    "name": "FirstSolver",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "agent",
-        "type": "address"
+        "indexed": false,
+        "internalType": "string",
+        "name": "opener",
+        "type": "string"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "poolId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "level",
+        "type": "string"
       }
     ],
-    "name": "Release",
+    "name": "LevelUnlocked",
     "type": "event"
   },
-  { "stateMutability": "payable", "type": "fallback" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "opener",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "level",
+        "type": "string"
+      }
+    ],
+    "name": "MasterLevelUnlocked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "culprit",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newPrincipal",
+        "type": "address"
+      }
+    ],
+    "name": "PrincipalChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "registrar",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "proxy",
+        "type": "address"
+      }
+    ],
+    "name": "ProxyRegistered",
+    "type": "event"
+  },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "task_id", "type": "uint256" }
+      {
+        "internalType": "bytes",
+        "name": "_level",
+        "type": "bytes"
+      }
     ],
-    "name": "AbortTask",
+    "name": "__hasSolved__",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "__isOwner__",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "__isValidPlayer__",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "get_C_Profit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "name": "levels",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "keys",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "massH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "hackers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_hackers",
+        "type": "string[]"
+      }
+    ],
+    "name": "massW",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "_magicno",
+        "type": "uint16"
+      },
+      {
+        "internalType": "string",
+        "name": "_just_a_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_secret_missive",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_x_",
+        "type": "string"
+      }
+    ],
+    "name": "open_entrance_door",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "registeredProxies",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "solve_challenge_A",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "solve_challenge_B",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newPrincipal",
+        "type": "address"
+      }
+    ],
+    "name": "solve_challenge_C",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_proxy",
+        "type": "address"
+      }
+    ],
+    "name": "solve_challenge_D",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "solve_challenge_D2",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_addr",
+        "type": "address"
+      }
+    ],
+    "name": "toNick",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "trustCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "name": "unlocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "usedkey",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "validPlayer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

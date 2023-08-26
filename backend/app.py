@@ -10,31 +10,37 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = ''
 db = SQLAlchemy(app)
 
-w3 = Web3(Web3.HTTPProvider(' '))
+w3 = Web3(Web3.HTTPProvider(''))
 
-contract_address = ''
+# this contract address will be static at least for our shared local nodes
+contract_address = '0x95bd8d42f30351685e96c62eddc0d0613bf9a87a'
 with open('abi.json') as f:
     contract_abi = json.load(f)
 
 contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_name = db.Column(db.String(255), nullable=False)
     event_data = db.Column(db.JSON, nullable=False)
 
+
 with app.app_context():
     db.create_all()
     print('created')
+
 
 def save_event_to_db(event_name, event_data):
     new_event = Event(event_name=event_name, event_data=event_data)
     db.session.add(new_event)
     db.session.commit()
 
+
 def get_events_from_db(event_name):
     events = Event.query.filter_by(event_name=event_name).all()
     return events
+
 
 class EventsResource(Resource):
     @swagger.operation(
@@ -43,8 +49,10 @@ class EventsResource(Resource):
     def get(self):
         """List all events."""
         events = get_events_from_db('Event')
-        event_list = [{'event_name': event.event_name, 'event_data': event.event_data} for event in events]
+        event_list = [{'event_name': event.event_name,
+                       'event_data': event.event_data} for event in events]
         return jsonify(event_list)
+
 
 class SpecificEventsResource(Resource):
     @swagger.operation(
@@ -53,8 +61,10 @@ class SpecificEventsResource(Resource):
     def get(self, event_name):
         """List specific events."""
         events = get_events_from_db(event_name)
-        event_list = [{'event_name': event.event_name, 'event_data': event.event_data} for event in events]
+        event_list = [{'event_name': event.event_name,
+                       'event_data': event.event_data} for event in events]
         return jsonify(event_list)
+
 
 api = Api(app)
 api = swagger.docs(Api(app), apiVersion='1.0')
@@ -73,24 +83,29 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 )
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+
 @app.route('/swagger.json')
 def swagger_json():
     with open('swagger.json', 'r') as f:
         return jsonify(json.load(f))
 
+
 def event_listener():
     print('running')
-    eventnames = ['ApproveCancel', 'Cancel', 'Deposit', 'OwnershipTransferred', 'Release']
+    eventnames = ['DoorUnlocked', 'LevelUnlocked', 'MasterLevelUnlocked',
+                  'PrincipalChanged', 'ProxyRegistered', 'FirstSolver']
     print(eventnames)
     for event_name in eventnames:
         print(event_name)
-        event_filter = contract.events[event_name].create_filter(fromBlock='latest')
+        event_filter = contract.events[event_name].create_filter(
+            fromBlock='latest')
         print('true')
         new_entries = event_filter.get_new_entries()
         print(new_entries)
         for event in new_entries:
             save_event_to_db(event_name, event)
             print(f"Event '{event_name}' saved to database")
+
 
 if __name__ == '__main__':
     event_listener()
