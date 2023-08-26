@@ -1,0 +1,10 @@
+
+Flask
+Flask-SQLAlchemy
+gunicorn
+web3
+psycopg2-binary
+flask_migrate
+flask_restful
+flask_restful_swagger
+flask_swagger_ui

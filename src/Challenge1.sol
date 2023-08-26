@@ -32,11 +32,15 @@ contract W_3_B_C_1 is S_M {
     //level D
     mapping(address => address) public registeredProxies;
 
-    event DoorUnlocked(string opener, string key);
-    event LevelUnlocked(string opener, string level);
-    event MasterLevelUnlocked(string opener, string level);
-    event PrincipalChanged(string culprit, address newPrincipal);
-    event ProxyRegistered(string registrar, address proxy);
+    event DoorUnlocked(string opener, string key, uint256 timeFired);
+    event LevelUnlocked(string opener, string level, uint256 timeFired);
+    event MasterLevelUnlocked(string opener, string level, uint256 timeFired);
+    event PrincipalChanged(
+        string culprit,
+        address newPrincipal,
+        uint256 timeFired
+    );
+    event ProxyRegistered(string registrar, address proxy, uint256 timeFired);
 
     event FirstSolver(string solver, string level);
 
@@ -77,7 +81,7 @@ contract W_3_B_C_1 is S_M {
             levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
             //we use msg.sender here explicitly
-            emit DoorUnlocked(toNick(tx.origin), _x_);
+            emit DoorUnlocked(toNick(tx.origin), _x_, block.timestamp);
         }
     }
 
@@ -99,7 +103,7 @@ contract W_3_B_C_1 is S_M {
             emit FirstSolver(toNick(tx.origin), string(LEVEL_A));
         }
         levels[tx.origin][LEVEL_A] = true;
-        emit LevelUnlocked(toNick(tx.origin), string(LEVEL_A));
+        emit LevelUnlocked(toNick(tx.origin), string(LEVEL_A), block.timestamp);
     }
 
     event DiSCoNnEcTeD();
@@ -127,7 +131,11 @@ contract W_3_B_C_1 is S_M {
                     emit FirstSolver(toNick(tx.origin), string(LEVEL_B));
                 }
                 levels[tx.origin][LEVEL_B] = true;
-                emit MasterLevelUnlocked(toNick(tx.origin), string(LEVEL_B));
+                emit MasterLevelUnlocked(
+                    toNick(tx.origin),
+                    string(LEVEL_B),
+                    block.timestamp
+                );
             }
         }
     }
@@ -140,7 +148,11 @@ contract W_3_B_C_1 is S_M {
             if (_newPrincipal.code.length > 0)
                 revert("Idan no suppose get code");
             currentPrincipal = _newPrincipal;
-            emit PrincipalChanged(toNick(tx.origin), _newPrincipal);
+            emit PrincipalChanged(
+                toNick(tx.origin),
+                _newPrincipal,
+                block.timestamp
+            );
         }
     }
 
@@ -155,7 +167,11 @@ contract W_3_B_C_1 is S_M {
         }
 
         levels[tx.origin][LEVEL_C] = true;
-        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_C));
+        emit LevelUnlocked(
+            toNick(msg.sender),
+            string(LEVEL_C),
+            block.timestamp
+        );
     }
 
     function solve_challenge_D(address _proxy) public {
@@ -164,7 +180,7 @@ contract W_3_B_C_1 is S_M {
         if (_proxy.code.length > 0) revert("PROXIES MUST NOT CONTAIN CODE");
         //register proxy for user
         registeredProxies[tx.origin] = _proxy;
-        emit ProxyRegistered(toNick(tx.origin), _proxy);
+        emit ProxyRegistered(toNick(tx.origin), _proxy, block.timestamp);
     }
 
     function solve_challenge_D2() public {
@@ -177,7 +193,11 @@ contract W_3_B_C_1 is S_M {
         }
 
         levels[tx.origin][LEVEL_D] = true;
-        emit LevelUnlocked(toNick(msg.sender), string(LEVEL_D));
+        emit LevelUnlocked(
+            toNick(msg.sender),
+            string(LEVEL_D),
+            block.timestamp
+        );
     }
 
     //checks
