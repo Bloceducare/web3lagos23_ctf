@@ -13,3 +13,5 @@ docs/
 # Dotenv file
 .env
 broadcast
+node_modules
+```

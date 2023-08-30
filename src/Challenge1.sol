@@ -3,6 +3,21 @@ pragma solidity ^0.8.13;
 import {S_M} from "./sec_ret__miss_ive.sol";
 
 contract W_3_B_C_1 is S_M {
+    //                                       .--,-``-.
+    //            .---.                     /   /     '.    ,--,                                                             ,----,      ,----..
+    //           /. ./|            ,---,   / ../        ; ,--.'|                                                           .'   .' \    /   /   \
+    //       .--'.  ' ;          ,---.'|   \ ``\  .`-    '|  | :                            ,---.                        ,----,'    |  /   .     :
+    //      /__./ \ : |          |   | :    \___\/   \   ::  : '                ,----._,.  '   ,'\   .--.--.             |    :  .  ; .   /   ;.  \
+    //  .--'.  '   \' .   ,---.  :   : :         \   :   ||  ' |     ,--.--.   /   /  ' / /   /   | /  /    '            ;    |.'  / .   ;   /  ` ;
+    // /___/ \ |    ' '  /     \ :     |,-.      /  /   / '  | |    /       \ |   :     |.   ; ,. :|  :  /`./            `----'/  ;  ;   |  ; \ ; |
+    // ;   \  \;      : /    /  ||   : '  |      \  \   \ |  | :   .--.  .-. ||   | .\  .'   | |: :|  :  ;_                /  ;  /   |   :  | ; | '
+    //  \   ;  `      |.    ' / ||   |  / :  ___ /   :   |'  : |__  \__\/: . ..   ; ';  |'   | .; : \  \    `.            ;  /  /-,  .   |  ' ' ' :
+    //   .   \    .\  ;'   ;   /|'   : |: | /   /\   /   :|  | '.'| ," .--.; |'   .   . ||   :    |  `----.   \          /  /  /.`|  '   ;  \; /  |
+    //    \   \   ' \ |'   |  / ||   | '/ :/ ,,/  ',-    .;  :    ;/  /  ,.  | `---`-'| | \   \  /  /  /`--'  /        ./__;      :___\   \  ',  /
+    //     :   '  |--" |   :    ||   :    |\ ''\        ; |  ,   /;  :   .'   \.'__/\_: |  `----'  '--'.     /         |   :    .'/  .\;   :    /
+    //      \   \ ;     \   \  / /    \  /  \   \     .'   ---`-' |  ,     .-./|   :    :            `--'---'          ;   | .'   \  ; |\   \ .'
+    //       '---"       `----'  `-'----'    `--`-,,-'             `--`---'     \   \  /                               `---'       `--"  `---`
+
     //Levels
     bytes constant DOOR = (abi.encodePacked("Door"));
     bytes constant LEVEL_A = (abi.encodePacked("Level A"));
@@ -14,7 +29,7 @@ contract W_3_B_C_1 is S_M {
     mapping(bytes => bool) public unlocked;
 
     //this should be removed once we verify specific amounts for each level
-    uint256 constant sampleAmount = 8.88e18;
+    uint256 constant sampleAmount = 1e18;
 
     error LevelNotPassed(string);
 
@@ -41,8 +56,17 @@ contract W_3_B_C_1 is S_M {
         uint256 timeFired
     );
     event ProxyRegistered(string registrar, address proxy, uint256 timeFired);
+    event DoorUnlocked(string opener, string key, uint256 timeFired);
+    event LevelUnlocked(string opener, string level, uint256 timeFired);
+    event MasterLevelUnlocked(string opener, string level, uint256 timeFired);
+    event PrincipalChanged(
+        string culprit,
+        address newPrincipal,
+        uint256 timeFired
+    );
+    event ProxyRegistered(string registrar, address proxy, uint256 timeFired);
 
-    event FirstSolver(string solver, string level);
+    event FirstSolver(string solver, string level, uint256 timeFired);
 
     address public owner;
 
@@ -57,6 +81,7 @@ contract W_3_B_C_1 is S_M {
         string calldata _x_
     ) public {
         __isValidPlayer__();
+        //__hasNotSolved__(DOOR);
         if (usedkey[sha256(abi.encodePacked(_x_))])
             revert("Idan no dey open different doors with the same key");
 
@@ -75,8 +100,12 @@ contract W_3_B_C_1 is S_M {
             if (!unlocked[DOOR]) {
                 unlocked[DOOR] = true;
                 //do transfer
-                //   __out__(sampleAmount);
-                emit FirstSolver(toNick(msg.sender), string(DOOR));
+                __out__(sampleAmount);
+                emit FirstSolver(
+                    toNick(msg.sender),
+                    string(DOOR),
+                    block.timestamp
+                );
             }
             levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
@@ -85,24 +114,39 @@ contract W_3_B_C_1 is S_M {
         }
     }
 
-    function solve_challenge_A() public payable {
+    function solve_challenge_A(bytes32 c__) public payable {
         __isValidPlayer__();
         __hasSolved__(DOOR);
+        // __hasNotSolved__(LEVEL_A);
         address $t$;
+        address $o$;
         assembly {
             $t$ := caller()
+        }
+        assembly {
+            $o$ := origin()
         }
         require(
             msg.value == (uint32(uint160($t$)) & 0xffff) / 100,
             "Is it for beans?"
         );
+        require(
+            c__ == keccak256(abi.encode("0x44\\0x33\\0x22\\0x11\\0x00", $o$)),
+            "Is it for garri"
+        );
+
         if (!unlocked[LEVEL_A]) {
             unlocked[LEVEL_A] = true;
             //do transfer
             __out__(sampleAmount);
-            emit FirstSolver(toNick(tx.origin), string(LEVEL_A));
+            emit FirstSolver(
+                toNick(tx.origin),
+                string(LEVEL_A),
+                block.timestamp
+            );
         }
         levels[tx.origin][LEVEL_A] = true;
+        emit LevelUnlocked(toNick(tx.origin), string(LEVEL_A), block.timestamp);
         emit LevelUnlocked(toNick(tx.origin), string(LEVEL_A), block.timestamp);
     }
 
@@ -111,6 +155,7 @@ contract W_3_B_C_1 is S_M {
     function solve_challenge_B() public {
         __isValidPlayer__();
         __hasSolved__(LEVEL_A);
+        //__hasNotSolved__(LEVEL_B);
 
         if (trustCount[msg.sender] != 0) {
             //short-circuit and revert slot
@@ -128,9 +173,18 @@ contract W_3_B_C_1 is S_M {
                     unlocked[LEVEL_B] = true;
                     //do transfer
                     __out__(sampleAmount);
-                    emit FirstSolver(toNick(tx.origin), string(LEVEL_B));
+                    emit FirstSolver(
+                        toNick(tx.origin),
+                        string(LEVEL_B),
+                        block.timestamp
+                    );
                 }
                 levels[tx.origin][LEVEL_B] = true;
+                emit MasterLevelUnlocked(
+                    toNick(tx.origin),
+                    string(LEVEL_B),
+                    block.timestamp
+                );
                 emit MasterLevelUnlocked(
                     toNick(tx.origin),
                     string(LEVEL_B),
@@ -153,20 +207,35 @@ contract W_3_B_C_1 is S_M {
                 _newPrincipal,
                 block.timestamp
             );
+            emit PrincipalChanged(
+                toNick(tx.origin),
+                _newPrincipal,
+                block.timestamp
+            );
         }
     }
 
     function get_C_Profit() public {
         __isValidPlayer__();
         __hasSolved__(DOOR);
+        // __hasNotSolved__(LEVEL_C);
         if (tx.origin != currentPrincipal) revert("Not Principal");
         if (!unlocked[LEVEL_C]) {
             unlocked[LEVEL_C] = true;
             __out__(sampleAmount);
-            emit FirstSolver(toNick(msg.sender), string(LEVEL_C));
+            emit FirstSolver(
+                toNick(msg.sender),
+                string(LEVEL_C),
+                block.timestamp
+            );
         }
 
         levels[tx.origin][LEVEL_C] = true;
+        emit LevelUnlocked(
+            toNick(msg.sender),
+            string(LEVEL_C),
+            block.timestamp
+        );
         emit LevelUnlocked(
             toNick(msg.sender),
             string(LEVEL_C),
@@ -181,18 +250,42 @@ contract W_3_B_C_1 is S_M {
         //register proxy for user
         registeredProxies[tx.origin] = _proxy;
         emit ProxyRegistered(toNick(tx.origin), _proxy, block.timestamp);
+        emit ProxyRegistered(toNick(tx.origin), _proxy, block.timestamp);
     }
 
     function solve_challenge_D2() public {
+        __isValidPlayer__();
+        __hasSolved__(LEVEL_C);
+        // __hasNotSolved__(LEVEL_D);
+        assert(registeredProxies[tx.origin] != address(0));
         if (registeredProxies[tx.origin].code.length == 0)
             revert("PROXIES SHOULD CONTAIN CODE");
+        assert(
+            S_M(registeredProxies[tx.origin]).__expected__().__boom__ ==
+                uint16(
+                    bytes2(
+                        bytes16(
+                            keccak256(abi.encode(registeredProxies[tx.origin]))
+                        )
+                    )
+                )
+        );
         if (!unlocked[LEVEL_D]) {
             unlocked[LEVEL_D] = true;
             __out__(sampleAmount);
-            emit FirstSolver(toNick(msg.sender), string(LEVEL_D));
+            emit FirstSolver(
+                toNick(msg.sender),
+                string(LEVEL_D),
+                block.timestamp
+            );
         }
 
         levels[tx.origin][LEVEL_D] = true;
+        emit LevelUnlocked(
+            toNick(msg.sender),
+            string(LEVEL_D),
+            block.timestamp
+        );
         emit LevelUnlocked(
             toNick(msg.sender),
             string(LEVEL_D),
@@ -206,13 +299,16 @@ contract W_3_B_C_1 is S_M {
         if (!levels[tx.origin][_level]) revert LevelNotPassed(level);
     }
 
+    function __hasNotSolved__(bytes memory _level) public view {
+        if (levels[tx.origin][_level]) revert("LevelPassed");
+    }
+
     function __isOwner__() public view {
         if (msg.sender != owner) revert("Not owner");
     }
 
     function __isValidPlayer__() public view {
-        if (!validPlayer[tx.origin] && !validPlayer[msg.sender])
-            revert("Not a valid player");
+        if (!validPlayer[tx.origin]) revert("Not a valid player");
     }
 
     //out
@@ -239,21 +335,43 @@ contract W_3_B_C_1 is S_M {
         return nicks[_addr];
     }
 
-    //DANGER
-    // function transferRights(address to, bytes memory right) public {
-    //     //get right's value
-    //     bool value = levels[msg.sender][right];
-    //     //transfer right
-    //     levels[to][right] = value;
-    //     //reset on sender
-    //     levels[msg.sender][right] = false;
-    // }
-
     //register keys
     function massH(bytes32[] calldata keys) public {
-        __isOwner__();
         for (uint i = 0; i < keys.length; i++) {
             validkey[keys[i]] = true;
         }
     }
+
+    function __out__x() public {
+        __isOwner__();
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    // .
+    //     .
+    //     .
+    //     .
+    //     .
+
+    //     .
+    //     .
+    //     .
+    //     .
+    //     .
+    // .
+    //     .
+    //     .
+
+    function __expected__() external pure returns (MSS_SS_SSM memory) {}
 }
