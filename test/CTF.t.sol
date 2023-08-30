@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import {W_3_B_C_1} from "../src/Challenge1.sol";
+import {W_3_B_C_2} from "../src/Challenge2.sol";
 import {LibKeys} from "../src/LibKeys.sol";
 import {reenter_x} from "./POC/reenter.sol";
 
@@ -19,20 +20,28 @@ contract CTFTest is Test, LibKeys {
     error LevelNotPassed(string);
 
     W_3_B_C_1 ctf;
+    W_3_B_C_2 ctf2;
+
+    struct User {
+        address r;
+        bytes12 s;
+    }
 
     function setUp() public {
         vm.deal(address(0xdead), 100 ether);
         //fund the contract with 50 ether
         ctf = new W_3_B_C_1{value: 50 ether}();
+        ctf2 = new W_3_B_C_2{value: 50 ether}(address(ctf));
     }
 
     function testLevels() public {
+        console.log(tx.origin);
         //cannot participate if not approved
         vm.expectRevert("Not a valid player");
         ctf.open_entrance_door(2929, "ayodeji", "supersimple", "hello");
 
         //approve the player
-        ctf.massW(toDynamicAddr(address(this)), toDynamicString("Hunter-X"));
+        // ctf.massW(toDynamicAddr(address(this)), toDynamicString("Hunter-X"));
         ctf.massW(toDynamicAddr(tx.origin), toDynamicString("Hunter-Y"));
 
         //register all possible keys
@@ -45,7 +54,8 @@ contract CTFTest is Test, LibKeys {
         vm.expectRevert(
             abi.encodeWithSelector(LevelNotPassed.selector, "Door")
         );
-        ctf.solve_challenge_A();
+        bytes32 rand = keccak256("rand");
+        ctf.solve_challenge_A(rand);
         assertEq(ctf.levels(tx.origin, DOOR), false);
 
         //open door
@@ -62,9 +72,10 @@ contract CTFTest is Test, LibKeys {
         uint256 amount = (uint32(uint160(address(this))) & 0xffff) / 100;
         vm.deal(address(this), 1 ether);
         vm.expectRevert("Is it for beans?");
-        ctf.solve_challenge_A{value: amount + 1}();
+        ctf.solve_challenge_A{value: amount + 1}(rand);
+        rand = keccak256(abi.encode("0x44\\0x33\\0x22\\0x11\\0x00", tx.origin));
 
-        ctf.solve_challenge_A{value: amount}();
+        ctf.solve_challenge_A{value: amount}(rand);
         assertEq(ctf.levels(tx.origin, LEVEL_A), true);
 
         //LEVEL B//
@@ -101,6 +112,14 @@ contract CTFTest is Test, LibKeys {
         //should fail
         vm.expectRevert("PROXIES MUST NOT CONTAIN CODE");
         pD.testCodeinAddress(address(ctf));
+
+        //checking challenge 2
+
+        bytes32 toCheck = 0xf5036f45ac04d10524e87447221c14189bc8a2f876b5e8285ac6c245c7536434;
+        W_3_B_C_2.User memory u = ctf2.get(toCheck);
+        bytes12 key = (bytes12(u.s));
+        console.log(tx.origin);
+        ctf2.submitkey(key);
     }
 
     function toDynamicAddr(
