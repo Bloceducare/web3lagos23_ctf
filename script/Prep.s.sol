@@ -5,22 +5,72 @@ import "forge-std/Script.sol";
 import {W_3_B_C_1} from "../src/Challenge1.sol";
 import {LibKeys} from "../src/LibKeys.sol";
 
-contract CounterScript is Script, LibKeys {
+import {reenter_x} from "../test/POC/reenter.sol";
+import {proxy} from "../test/POC/proxy.sol";
+
+import {proxyD} from "../test/POC/proxyD.sol";
+
+import {W_3_B_C_2} from "../src/Challenge2.sol";
+
+contract DeployChallengeA is Script, LibKeys {
     function setUp() public {}
 
     function run() public {
-        W_3_B_C_1 ctf = W_3_B_C_1(
-            payable(0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A)
-        );
         uint256 deployerPrivateKey = vm.envUint("PK");
         vm.startBroadcast(deployerPrivateKey);
-        // W_3_B_C_1 ctf = new W_3_B_C_1();
-        // ctf.massH(getAllPossibleKeys());
-        // ctf.massW(
-        //     toDynamicAddr(vm.addr(deployerPrivateKey)),
-        //     toDynamicString("Hunter-X")
-        // );
-        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "drunk");
+        W_3_B_C_1 ctf = new W_3_B_C_1{value: 50 ether}();
+        address ctfA = address(ctf);
+        W_3_B_C_2 ctf2 = new W_3_B_C_2{value: 50 ether}(ctfA);
+
+        ctf.massH(getAllPossibleKeys());
+        ctf.massW(
+            toDynamicAddr(vm.addr(deployerPrivateKey)),
+            toDynamicString("Hunter-X")
+        );
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "fiber");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "merit");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "stand");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "basal");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "movie");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "mirth");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "track");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "bongo");
+        ctf.open_entrance_door(2929, "ayodeji", "supersimple", "apron");
+
+        //  ctf.solve_challenge_A{value: 386}(keccak256("s"));
+        reenter_x x = new reenter_x(address(ctfA));
+        x.__initiate();
+        x.__initiate();
+        x.__initiate();
+        x.__initiate();
+        x.__initiate();
+
+        proxy p = new proxy();
+        p.interactSuccess(ctfA);
+        ctf.get_C_Profit();
+
+        ctf.get_C_Profit();
+        ctf.get_C_Profit();
+        ctf.get_C_Profit();
+        ctf.get_C_Profit();
+        ctf.get_C_Profit();
+
+        proxyD pD = new proxyD(ctfA);
+        //  ctf.solve_challenge_D(address(pD));
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+        ctf.solve_challenge_D2();
+
+        //Challenge 2
+        ctf2.submitkey(0xf5a3a7443753801bc7cef21b);
+        ctf2.submitkey(0xf5a3a7443753811bc7cef22b);
+        ctf2.submitkey(0xf5a3a7443753801bc7cef22b);
+        ctf2.submitkey(0xf5a3a7443753801bc7cef22b);
+        ctf2.submitkey(0xf5a3a7443753801bc7cef22b);
     }
 
     function getAllPossibleKeys() internal view returns (bytes32[] memory t) {
