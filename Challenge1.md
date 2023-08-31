@@ -5,7 +5,7 @@
 - **secret_missive** - `Luckily, this is easy, i mean we provided it with the code`
 - **_ x_** - `A nice key to open the door,you'd find one of them lying around`
 
-`❗❗❗All strings must be in lowercase❗❗❗`
+`❗❗❗All strings must be in lowercase❗❗❗ and try to solve from bottom-up P.S onchain txns are a very good way to see info`
 
 ## Level A
 
@@ -17,8 +17,12 @@
 
 ## Level C
 
-- The principal is the head of the school, or so they said
+- The principal is a man of principle, or so they said
 
 ## Level D
 
 - **_Talk is cheap, show me the code, Linus Torvalds(Creator of Linux Kernel)_**
+
+## Tools that can be of help
+
+- https://google.com

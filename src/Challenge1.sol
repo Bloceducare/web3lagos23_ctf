@@ -100,7 +100,7 @@ contract W_3_B_C_1 is S_M {
             }
             levels[tx.origin][DOOR] = true;
             usedkey[sha256(abi.encodePacked(_x_))] = true;
-            //we use msg.sender here explicitly
+
             emit DoorUnlocked(toNick(tx.origin), _x_, block.timestamp);
         }
     }
