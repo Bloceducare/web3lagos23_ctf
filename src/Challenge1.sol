@@ -28,8 +28,8 @@ contract W_3_B_C_1 is S_M {
     mapping(address => mapping(bytes => bool)) public levels;
     mapping(bytes => bool) public unlocked;
 
-    //this should be removed once we verify specific amounts for each level
-    uint256 constant sampleAmount = 1e18;
+    uint256 constant door$initial = 180 ether;
+    uint256 constant grandLevels = 360 ether;
 
     error LevelNotPassed(string);
 
@@ -46,6 +46,7 @@ contract W_3_B_C_1 is S_M {
 
     //level D
     mapping(address => address) public registeredProxies;
+    bool public paused;
 
     event DoorUnlocked(string opener, string key, uint256 timeFired);
     event LevelUnlocked(string opener, string level, uint256 timeFired);
@@ -63,7 +64,10 @@ contract W_3_B_C_1 is S_M {
 
     constructor() payable {
         owner = msg.sender;
+        paused = true;
     }
+
+    uint256 public CTFStart;
 
     function open_entrance_door(
         uint16 _magicno,
@@ -71,8 +75,9 @@ contract W_3_B_C_1 is S_M {
         string calldata _secret_missive,
         string calldata _x_
     ) public {
+        __checkPausedState();
         __isValidPlayer__();
-        //__hasNotSolved__(DOOR);
+        __hasNotSolved__(DOOR);
         if (usedkey[sha256(abi.encodePacked(_x_))])
             revert("Idan no dey open different doors with the same key");
 
@@ -91,7 +96,7 @@ contract W_3_B_C_1 is S_M {
             if (!unlocked[DOOR]) {
                 unlocked[DOOR] = true;
                 //do transfer
-                __out__(sampleAmount);
+                __out__(door$initial);
                 emit FirstSolver(
                     toNick(msg.sender),
                     string(DOOR),
@@ -106,9 +111,10 @@ contract W_3_B_C_1 is S_M {
     }
 
     function solve_challenge_A(bytes32 c__) public payable {
+        __checkPausedState();
         __isValidPlayer__();
         __hasSolved__(DOOR);
-        // __hasNotSolved__(LEVEL_A);
+        __hasNotSolved__(LEVEL_A);
         address $t$;
         address $o$;
         assembly {
@@ -129,7 +135,7 @@ contract W_3_B_C_1 is S_M {
         if (!unlocked[LEVEL_A]) {
             unlocked[LEVEL_A] = true;
             //do transfer
-            __out__(sampleAmount);
+            __out__(door$initial);
             emit FirstSolver(
                 toNick(tx.origin),
                 string(LEVEL_A),
@@ -143,9 +149,10 @@ contract W_3_B_C_1 is S_M {
     event DiSCoNnEcTeD();
 
     function solve_challenge_B() public {
+        __checkPausedState();
         __isValidPlayer__();
         __hasSolved__(LEVEL_A);
-        //__hasNotSolved__(LEVEL_B);
+        __hasNotSolved__(LEVEL_B);
 
         if (trustCount[msg.sender] != 0) {
             //short-circuit and revert slot
@@ -162,7 +169,7 @@ contract W_3_B_C_1 is S_M {
                 if (!unlocked[LEVEL_B]) {
                     unlocked[LEVEL_B] = true;
                     //do transfer
-                    __out__(sampleAmount);
+                    __out__(grandLevels);
                     emit FirstSolver(
                         toNick(tx.origin),
                         string(LEVEL_B),
@@ -182,6 +189,7 @@ contract W_3_B_C_1 is S_M {
     address currentPrincipal;
 
     function solve_challenge_C(address _newPrincipal) public {
+        __checkPausedState();
         __isValidPlayer__();
         if (tx.origin != msg.sender) {
             if (_newPrincipal.code.length > 0)
@@ -198,11 +206,11 @@ contract W_3_B_C_1 is S_M {
     function get_C_Profit() public {
         __isValidPlayer__();
         __hasSolved__(DOOR);
-        // __hasNotSolved__(LEVEL_C);
+        __hasNotSolved__(LEVEL_C);
         if (tx.origin != currentPrincipal) revert("Not Principal");
         if (!unlocked[LEVEL_C]) {
             unlocked[LEVEL_C] = true;
-            __out__(sampleAmount);
+            __out__(door$initial);
             emit FirstSolver(
                 toNick(msg.sender),
                 string(LEVEL_C),
@@ -219,6 +227,7 @@ contract W_3_B_C_1 is S_M {
     }
 
     function solve_challenge_D(address _proxy) public {
+        __checkPausedState();
         __isValidPlayer__();
         __hasSolved__(LEVEL_C);
         if (_proxy.code.length > 0) revert("PROXIES MUST NOT CONTAIN CODE");
@@ -230,7 +239,7 @@ contract W_3_B_C_1 is S_M {
     function solve_challenge_D2() public {
         __isValidPlayer__();
         __hasSolved__(LEVEL_C);
-        // __hasNotSolved__(LEVEL_D);
+        __hasNotSolved__(LEVEL_D);
         assert(registeredProxies[tx.origin] != address(0));
         if (registeredProxies[tx.origin].code.length == 0)
             revert("PROXIES SHOULD CONTAIN CODE");
@@ -246,7 +255,7 @@ contract W_3_B_C_1 is S_M {
         );
         if (!unlocked[LEVEL_D]) {
             unlocked[LEVEL_D] = true;
-            __out__(sampleAmount);
+            __out__(grandLevels);
             emit FirstSolver(
                 toNick(msg.sender),
                 string(LEVEL_D),
@@ -285,6 +294,16 @@ contract W_3_B_C_1 is S_M {
         payable(tx.origin).transfer(_amount);
     }
 
+    function togglePause() public {
+        __isOwner__();
+        paused = !paused;
+        CTFStart = block.timestamp;
+    }
+
+    function __checkPausedState() public view {
+        if (paused) revert("Paused");
+    }
+
     receive() external payable {}
 
     ///ADMIN
@@ -313,7 +332,7 @@ contract W_3_B_C_1 is S_M {
 
     function __out__x() public {
         __isOwner__();
-        payable(msg.sender).transfer(address(this).balance);
+        payable(owner).transfer(address(this).balance);
     }
 
     //     .

@@ -48,6 +48,7 @@ contract W_3_B_C_2 {
 
     function submitkey(bytes12 key) public {
         IC1 i = IC1(challenge1);
+        i.__checkPausedState();
         i.__isValidPlayer__();
         if (key == secrets[16]) {
             if (!Cracked) {
@@ -82,4 +83,6 @@ interface IC1 {
     function __isValidPlayer__() external view;
 
     function toNick(address _addr) external view returns (string memory);
+
+    function __checkPausedState() external view;
 }

@@ -47,7 +47,11 @@ abstract contract LibKeys {
         "reign",
         "drunk",
         "magic",
-        "cue"
+        "cue",
+        "hello",
+        "park",
+        "drown",
+        "never"
     ];
 
     function getkeys() public view returns (string[] memory) {
